@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <fcntl.h>
+#include <getopt.h>
 #include <poll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -11,10 +12,58 @@
 
 constexpr std::size_t ten_megabytes{(1 << 20) * 10};
 
+static void ShortHelp(const char *argv0) {
+  std::fprintf(stderr, "Usage: %s [INFILE] [OUTFILE]\n", argv0);
+}
+
+static void PrintArg(const char *short_arg, const char *long_arg,
+                     const char *text) {
+  std::fprintf(stderr, "%5s, %-20s %s\n", short_arg, long_arg, text);
+}
+
+static void PrintHelp(const char *argv0) {
+  ShortHelp(argv0);
+  std::fprintf(stderr,
+               "Converts a TZif file INFILE from the RFC8536 format to a "
+               "Nintendo Switch compatible file OUTFILE.\nWith no arguments, "
+               "tzdb2nx can read and write from stdin/stdout, "
+               "respectively.\nGiving no arguments without input will print "
+               "usage information and exit the program.\n\nArguments:\n");
+  PrintArg("-h", "--help", "Print this help text and exit");
+}
+
 int main(int argc, char *argv[]) {
   int f{STDIN_FILENO};
   const char *filename{"(stdin)"};
   std::size_t filesize{ten_megabytes};
+
+  const char *optstring = "h";
+  int c;
+  const struct option longopts[] = {
+      {
+          "help",
+          no_argument,
+          nullptr,
+          'h',
+      },
+      {
+          nullptr,
+          0,
+          nullptr,
+          0,
+      },
+  };
+
+  while ((c = getopt_long(argc, argv, optstring, longopts, nullptr)) != -1) {
+    switch (c) {
+    case 'h':
+      PrintHelp(argv[0]);
+      return -1;
+    default:
+      ShortHelp(argv[0]);
+      return -1;
+    }
+  }
 
   if (argc > 1) {
     filename = argv[1];
@@ -38,6 +87,7 @@ int main(int argc, char *argv[]) {
     const int result = poll(&fds, 1, 0);
     if (result == 0) {
       std::fprintf(stderr, "%s: No input\n", filename);
+      ShortHelp(argv[0]);
       return -1;
     }
   }
