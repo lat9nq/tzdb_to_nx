@@ -5,9 +5,6 @@ add_compile_options(
     -Werror=shadow
 )
 
-add_executable(tzdb2nx
-    main.cpp
-    tzif.cpp
-    tzif.h)
-
 include_directories(.)
+
+add_subdirectory(tzdb2nx)
