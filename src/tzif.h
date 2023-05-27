@@ -44,7 +44,7 @@ static_assert(sizeof(TimeTypeRecord) == 0x6);
 class Data {
 public:
   explicit Data() = default;
-  ~Data() = default;
+  virtual ~Data() = default;
 
   virtual void ReformatNintendo(std::vector<u_int8_t> &buffer) const = 0;
 };
@@ -52,7 +52,7 @@ public:
 class DataImpl : public Data {
 public:
   explicit DataImpl() = default;
-  ~DataImpl() = default;
+  ~DataImpl() override = default;
 
   void ReformatNintendo(std::vector<u_int8_t> &buffer) const override;
 

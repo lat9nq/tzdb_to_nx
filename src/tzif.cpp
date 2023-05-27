@@ -6,7 +6,7 @@
 
 namespace Tzif {
 
-static std::size_t SkipToVersion2(const u_int8_t *data) {
+static std::size_t SkipToVersion2(const u_int8_t *data, std::size_t size) {
   char magic[5];
   const u_int8_t *p{data};
 
@@ -14,11 +14,14 @@ static std::size_t SkipToVersion2(const u_int8_t *data) {
   magic[4] = '\0';
 
   if (std::strcmp(magic, "TZif") != 0) {
-    return 0;
+    return -1;
   }
 
   do {
     p++;
+    if (p >= data + size) {
+      return -1;
+    }
   } while (std::strncmp(reinterpret_cast<const char *>(p), "TZif", 4) != 0);
 
   return p - data;
@@ -32,8 +35,8 @@ template <typename Type> constexpr static void SwapEndianess(Type *value) {
     Type value;
   } temp;
 
-  for (int i = 0; i < sizeof(Type); i++) {
-    int alt_index = sizeof(Type) - i - 1;
+  for (u_int32_t i = 0; i < sizeof(Type); i++) {
+    u_int32_t alt_index = sizeof(Type) - i - 1;
     temp.data[alt_index] = data[i];
   }
 
@@ -50,7 +53,12 @@ static void FlipHeader(Header &header) {
 }
 
 std::unique_ptr<DataImpl> ReadData(const u_int8_t *data, std::size_t size) {
-  const u_int8_t *p = data + SkipToVersion2(data);
+  const std::size_t v2_offset = SkipToVersion2(data, size);
+  if (v2_offset == static_cast<std::size_t>(-1)) {
+    return nullptr;
+  }
+
+  const u_int8_t *p = data + v2_offset;
 
   Header header;
   std::memcpy(&header, p, sizeof(header));
@@ -58,41 +66,42 @@ std::unique_ptr<DataImpl> ReadData(const u_int8_t *data, std::size_t size) {
 
   FlipHeader(header);
 
+  const std::size_t data_block_length =
+      header.timecnt * sizeof(int64_t) + header.timecnt * sizeof(u_int8_t) +
+      header.typecnt * sizeof(TimeTypeRecord) +
+      header.charcnt * sizeof(int8_t) + header.isstdcnt * sizeof(u_int8_t) +
+      header.isutcnt * sizeof(u_int8_t);
+
+  if (v2_offset + data_block_length + sizeof(Header) > size) {
+    return nullptr;
+  }
+
   std::unique_ptr<DataImpl> impl = std::make_unique<DataImpl>();
   impl->header = header;
 
-  impl->transition_times = std::make_unique<int64_t[]>(header.timecnt);
-  impl->transition_types = std::make_unique<u_int8_t[]>(header.timecnt);
-  impl->local_time_type_records =
-      std::make_unique<TimeTypeRecord[]>(header.typecnt);
-  impl->time_zone_designations = std::make_unique<int8_t[]>(header.charcnt);
-  impl->standard_indicators = std::make_unique<u_int8_t[]>(header.isstdcnt);
-  impl->ut_indicators = std::make_unique<u_int8_t[]>(header.isutcnt);
+  const auto copy =
+      []<typename Type>(std::unique_ptr<Type[]> &array, int length,
+                        const u_int8_t *const &ptr) -> const u_int8_t * {
+    const std::size_t region_length = length * sizeof(Type);
+    array = std::make_unique<Type[]>(length);
+    std::memcpy(array.get(), ptr, region_length);
+    return ptr + region_length;
+  };
 
-  std::memcpy(impl->transition_times.get(), p,
-              header.timecnt * sizeof(int64_t));
-  p += header.timecnt * sizeof(int64_t);
-
-  std::memcpy(impl->transition_types.get(), p,
-              header.timecnt * sizeof(u_int8_t));
-  p += header.timecnt * sizeof(u_int8_t);
-
-  std::memcpy(impl->local_time_type_records.get(), p,
-              header.typecnt * sizeof(TimeTypeRecord));
-  p += header.typecnt * sizeof(TimeTypeRecord);
-
-  std::memcpy(impl->time_zone_designations.get(), p, header.charcnt);
-  p += header.charcnt * sizeof(int8_t);
-
-  std::memcpy(impl->standard_indicators.get(), p,
-              header.isstdcnt * sizeof(u_int8_t));
-  p += header.isstdcnt * sizeof(u_int8_t);
-
-  std::memcpy(impl->ut_indicators.get(), p, header.isutcnt * sizeof(u_int8_t));
-  p += header.isutcnt * sizeof(u_int8_t);
+  p = copy(impl->transition_times, header.timecnt, p);
+  p = copy(impl->transition_types, header.timecnt, p);
+  p = copy(impl->local_time_type_records, header.typecnt, p);
+  p = copy(impl->time_zone_designations, header.charcnt, p);
+  p = copy(impl->standard_indicators, header.isstdcnt, p);
+  p = copy(impl->ut_indicators, header.isutcnt, p);
 
   const std::size_t footer_string_length = data + size - p - 2;
   p++;
+
+  if (p + footer_string_length > data + size ||
+      p + footer_string_length < data) {
+    return nullptr;
+  }
 
   impl->footer.tz_string = std::make_unique<char[]>(footer_string_length);
   std::memcpy(impl->footer.tz_string.get(), p, footer_string_length);
