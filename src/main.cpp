@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     case 'h':
       PrintHelp(argv[0]);
       return -1;
-    default:
+    case '?':
       ShortHelp(argv[0]);
       return -1;
     }
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     if (f == -1) {
       const int err = errno;
       std::fprintf(stderr, "%s: %s\n", filename, std::strerror(err));
-      return -1;
+      return err;
     }
 
     struct stat statbuf;
@@ -98,13 +98,13 @@ int main(int argc, char *argv[]) {
   if (filesize == static_cast<std::size_t>(-1)) {
     const int err = errno;
     std::fprintf(stderr, "%s: %s\n", filename, std::strerror(err));
-    return -1;
+    return err;
   }
   int result = close(f);
   if (result == -1) {
     const int err = errno;
     std::fprintf(stderr, "%s: %s\n", filename, std::strerror(err));
-    return -1;
+    return err;
   }
 
   if (filesize < 4) {
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
     if (f == -1) {
       const int err = errno;
       std::fprintf(stderr, "%s: %s\n", filename, std::strerror(err));
-      return -1;
+      return err;
     }
   }
 
@@ -142,14 +142,14 @@ int main(int argc, char *argv[]) {
   if (result == -1) {
     const int err = errno;
     std::fprintf(stderr, "%s: %s\n", filename, std::strerror(err));
-    return -1;
+    return err;
   }
 
   result = close(f);
   if (result == -1) {
     const int err = errno;
     std::fprintf(stderr, "%s: %s\n", filename, std::strerror(err));
-    return -1;
+    return err;
   }
 
   return 0;
