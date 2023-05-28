@@ -8,3 +8,4 @@ add_compile_options(
 include_directories(.)
 
 add_subdirectory(tzdb2nx)
+add_subdirectory(tzdb)
