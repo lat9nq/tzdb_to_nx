@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
   f = STDOUT_FILENO;
   if (argc > 2) {
     filename = argv[2];
-    f = open(filename, O_WRONLY | O_CREAT | O_TRUNC);
+    f = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0664);
 
     if (f == -1) {
       const int err = errno;
