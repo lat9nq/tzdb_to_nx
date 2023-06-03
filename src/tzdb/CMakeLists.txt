@@ -14,12 +14,14 @@ set(TZDB_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/build")
 set(TZDB_ZONEINFO "${TZDB_BUILD_DIR}/usr/share/zoneinfo")
 set(TZIF_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/tzif_list.txt")
 
-set(NX_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/nx")
+set(NX_BUILD_DIR "${PROJECT_BINARY_DIR}/nx")
+set(NX_ZONEINFO_DIR "${NX_BUILD_DIR}/zoneinfo")
 
 add_custom_target(x80e 
     ALL
     DEPENDS
-        tzdb2nx)
+        tzdb2nx
+        ${NX_VERSION_FILE})
 
 if (NOT EXISTS "${TZDB_BUILD_DIR}" OR NOT EXISTS ${TZIF_LIST_FILE})
     execute_process(
@@ -30,6 +32,7 @@ if (NOT EXISTS "${TZDB_BUILD_DIR}" OR NOT EXISTS ${TZIF_LIST_FILE})
         COMMAND_ERROR_IS_FATAL ANY
     )
 
+    # Step taken by Arch Linux packaging, but Nintendo apparently skips it
     # execute_process(
     #     COMMAND
     #         "${TZDB_LOCATION}/zic" -b fat -d ${TZDB_ZONEINFO} africa antarctica asia australasia europe northamerica southamerica etcetera backward factory
@@ -45,21 +48,36 @@ if (NOT EXISTS "${TZDB_BUILD_DIR}" OR NOT EXISTS ${TZIF_LIST_FILE})
     )
 endif()
 
+set(TZDB_VERSION_FILE ${TZDB_LOCATION}/version)
+file(TIMESTAMP ${TZDB_VERSION_FILE} TZDB_VERSION "%y%m%d" UTC)
+set(NX_VERSION_FILE ${NX_BUILD_DIR}/version.txt)
+file(WRITE ${NX_VERSION_FILE} "${TZDB_VERSION}")
+
+set(BINARY_LIST_TXT ${NX_BUILD_DIR}/binaryList.txt)
+add_custom_target(binary_list
+        bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.sh ${BINARY_LIST_TXT}
+    BYPRODUCTS
+        ${BINARY_LIST_TXT}
+    WORKING_DIRECTORY
+        ${NX_ZONEINFO_DIR})
+add_dependencies(x80e binary_list)
+
 file(STRINGS "${TZIF_LIST_FILE}" TZ_FILES)
 foreach(FILE ${TZ_FILES})
     file(RELATIVE_PATH TARG "${TZDB_ZONEINFO}" "${FILE}")
-    get_filename_component(TARG_PATH "${NX_BUILD_DIR}/${TARG}" DIRECTORY)
+    get_filename_component(TARG_PATH "${NX_ZONEINFO_DIR}/${TARG}" DIRECTORY)
     string(REGEX REPLACE "\/" "_" TARG_SANITIZED "${TARG}")
     add_custom_target(${TARG_SANITIZED}
         BYPRODUCTS
-            ${NX_BUILD_DIR}/${TARG}
+            ${NX_ZONEINFO_DIR}/${TARG}
         COMMAND
             mkdir -p ${TARG_PATH}
         COMMAND
-            "${PROJECT_BINARY_DIR}/src/tzdb2nx/tzdb2nx" ${FILE} ${NX_BUILD_DIR}/${TARG}
+            "${PROJECT_BINARY_DIR}/src/tzdb2nx/tzdb2nx" ${FILE} ${NX_ZONEINFO_DIR}/${TARG}
         DEPENDS
             tzdb2nx
     )
 
     add_dependencies(x80e ${TARG_SANITIZED})
+    add_dependencies(binary_list ${TARG_SANITIZED})
 endforeach()
