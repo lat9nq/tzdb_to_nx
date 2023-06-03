@@ -33,9 +33,13 @@ jobs:
       run: |
         mkdir -p ${{github.workspace}}/artifacts
         cp -rv ${{github.workspace}}/build/nx ${{github.workspace}}/artifacts/
+        
+    - name: Version
+      run: |
+        echo "nx_version=`cat ${{github.workspace}}/build/nx/version.txt`" > "$GITHUB_ENV"
       
     - name: Upload
       uses: actions/upload-artifact@v3
       with:
-        name: binaries
+        name: ${{ env.nx_version }}
         path: artifacts/nx
