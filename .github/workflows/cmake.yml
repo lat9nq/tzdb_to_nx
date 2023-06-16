@@ -36,7 +36,7 @@ jobs:
         
     - name: Version
       run: |
-        echo "nx_version=`cat ${{github.workspace}}/build/nx/version.txt`" > "$GITHUB_ENV"
+        echo "nx_version=$(cat $(grep NX_TZDB_DIR ${{github.workspace}}/build/CMakeCache.txt | sed 's/.*=//g')/version.txt)" > "$GITHUB_ENV"
       
     - name: Upload
       uses: actions/upload-artifact@v3
