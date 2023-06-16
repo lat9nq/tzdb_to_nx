@@ -41,12 +41,16 @@ add_custom_target(x80e
         ${NX_VERSION_FILE})
 
 set(BINARY_LIST_TXT ${NX_TZDB_DIR}/binaryList.txt)
-add_custom_target(binary_list
-        bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.sh ${BINARY_LIST_TXT}
-    BYPRODUCTS
+add_custom_command(
+    OUTPUT
         ${BINARY_LIST_TXT}
+    COMMAND
+        bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.sh ${BINARY_LIST_TXT}
     WORKING_DIRECTORY
         ${NX_ZONEINFO_DIR})
+
+add_custom_target(binary_list
+    DEPENDS ${BINARY_LIST_TXT})
 add_dependencies(x80e binary_list)
 
 file(STRINGS "${TZIF_LIST_FILE}" TZ_FILES)
@@ -54,15 +58,19 @@ foreach(FILE ${TZ_FILES})
     file(RELATIVE_PATH TARG "${TZ_ZONEINFO_DIR}" "${FILE}")
     get_filename_component(TARG_PATH "${NX_ZONEINFO_DIR}/${TARG}" DIRECTORY)
     string(REGEX REPLACE "\/" "_" TARG_SANITIZED "${TARG}")
-    add_custom_target(${TARG_SANITIZED}
-        BYPRODUCTS
-            ${NX_ZONEINFO_DIR}/${TARG}
+    set(NX_TZ_TARGET ${NX_ZONEINFO_DIR}/${TARG})
+    add_custom_command(
+        OUTPUT
+            ${NX_TZ_TARGET}
         COMMAND
             mkdir -p ${TARG_PATH}
         COMMAND
             ${TZDB2NX_PATH} ${FILE} ${NX_ZONEINFO_DIR}/${TARG}
         DEPENDS
             tzdb2nx)
+
+    add_custom_target(${TARG_SANITIZED}
+        DEPENDS ${NX_TZ_TARGET})
 
     add_dependencies(x80e ${TARG_SANITIZED})
     add_dependencies(binary_list ${TARG_SANITIZED})
