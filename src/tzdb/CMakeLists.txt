@@ -1,8 +1,36 @@
+find_program(GIT_PROGRAM git)
+if ("${GIT_PROGRAM}" STREQUAL "GIT_PROGRAM-NOTFOUND")
+    message(FATAL_ERROR "git program not found")
+endif()
+
+find_program(GNU_DATE date)
+if ("${GNU_DATE}" STREQUAL "GNU_DATE-NOTFOUND")
+    message(FATAL_ERROR "date program not found")
+endif()
+
 set(NX_TZDB_DIR "${CMAKE_CURRENT_BINARY_DIR}/nx" CACHE PATH "Path to Switch-style time zone data")
 set(NX_ZONEINFO_DIR "${NX_TZDB_DIR}/zoneinfo")
 
-set(TZDB_VERSION_FILE ${TZDB_LOCATION}/version)
-file(TIMESTAMP ${TZDB_VERSION_FILE} TZDB_VERSION "%y%m%d" UTC)
+set(TZDB_VERSION_FILE ${TZ_SOURCE_DIR}/NEWS)
+
+execute_process(
+    COMMAND 
+        ${GIT_PROGRAM} log --pretty=%at -n1 NEWS
+    OUTPUT_VARIABLE
+        TZ_COMMIT_TIME
+    WORKING_DIRECTORY
+        ${TZ_SOURCE_DIR}
+    COMMAND_ERROR_IS_FATAL ANY)
+
+string(REPLACE "\n" "" TZ_COMMIT_TIME "${TZ_COMMIT_TIME}")
+
+execute_process(
+    COMMAND
+        ${GNU_DATE} +%y%m%d --date=@${TZ_COMMIT_TIME}
+    OUTPUT_VARIABLE
+        TZDB_VERSION
+    COMMAND_ERROR_IS_FATAL ANY)
+
 set(NX_VERSION_FILE ${NX_TZDB_DIR}/version.txt)
 file(WRITE ${NX_VERSION_FILE} "${TZDB_VERSION}")
 

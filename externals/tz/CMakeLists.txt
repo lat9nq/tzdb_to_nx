@@ -1,4 +1,4 @@
-set(TZ_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tz")
+set(TZ_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tz" CACHE PATH "Time zone source directory")
 set(TZ_DIR "${CMAKE_CURRENT_BINARY_DIR}/tz")
 set(TZ_ZONEINFO_DIR "${TZ_DIR}/usr/share/zoneinfo" CACHE PATH "Time zone info data directory")
 set(TZIF_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/tzif_list.txt" CACHE PATH "List of zone info files")
