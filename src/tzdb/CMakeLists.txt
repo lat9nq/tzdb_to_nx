@@ -34,7 +34,7 @@ execute_process(
 set(NX_VERSION_FILE ${NX_TZDB_DIR}/version.txt)
 file(WRITE ${NX_VERSION_FILE} "${TZDB_VERSION}")
 
-add_custom_target(x80e 
+add_custom_target(x80e
     ALL
     DEPENDS
         tzdb2nx
@@ -49,9 +49,11 @@ add_custom_command(
     WORKING_DIRECTORY
         ${NX_ZONEINFO_DIR})
 
-add_custom_target(binary_list
+add_custom_target(time_zone_binary_list
     DEPENDS ${BINARY_LIST_TXT})
-add_dependencies(x80e binary_list)
+add_dependencies(x80e time_zone_binary_list)
+
+set(TZ_DATA_LIST "")
 
 file(STRINGS "${TZIF_LIST_FILE}" TZ_FILES)
 foreach(FILE ${TZ_FILES})
@@ -69,9 +71,11 @@ foreach(FILE ${TZ_FILES})
         DEPENDS
             tzdb2nx)
 
-    add_custom_target(${TARG_SANITIZED}
-        DEPENDS ${NX_TZ_TARGET})
-
-    add_dependencies(x80e ${TARG_SANITIZED})
-    add_dependencies(binary_list ${TARG_SANITIZED})
+    list(APPEND TZ_DATA_LIST ${NX_TZ_TARGET})
 endforeach()
+
+add_custom_target(time_zone_data
+    DEPENDS ${TZ_DATA_LIST})
+
+add_dependencies(x80e time_zone_data)
+add_dependencies(time_zone_binary_list time_zone_data)
