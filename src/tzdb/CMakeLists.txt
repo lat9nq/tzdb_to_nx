@@ -35,7 +35,6 @@ set(NX_VERSION_FILE ${NX_TZDB_DIR}/version.txt)
 file(WRITE ${NX_VERSION_FILE} "${TZDB_VERSION}")
 
 add_custom_target(x80e
-    ALL
     DEPENDS
         tzdb2nx
         ${NX_VERSION_FILE})
