@@ -24,9 +24,15 @@ execute_process(
 
 string(REPLACE "\n" "" TZ_COMMIT_TIME "${TZ_COMMIT_TIME}")
 
+if (APPLE)
+	set(VERSION_COMMAND ${GNU_DATE} -r ${TZ_COMMIT_TIME} +%y%m%d) 
+else ()
+	set(VERSION_COMMAND ${GNU_DATE} +%y%m%d --date=@${TZ_COMMIT_TIME})
+endif ()
+
 execute_process(
     COMMAND
-        ${GNU_DATE} +%y%m%d --date=@${TZ_COMMIT_TIME}
+		${VERSION_COMMAND}
     OUTPUT_VARIABLE
         TZDB_VERSION
     COMMAND_ERROR_IS_FATAL ANY)
