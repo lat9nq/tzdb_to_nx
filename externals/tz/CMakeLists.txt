@@ -28,7 +28,7 @@ if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
 
     execute_process(
         COMMAND
-            /bin/bash "${CMAKE_CURRENT_SOURCE_DIR}/find_tzif.sh" "${TZ_ZONEINFO_DIR}" "${TZIF_LIST_FILE}"
+            sh "${CMAKE_CURRENT_SOURCE_DIR}/find_tzif.sh" "${TZ_ZONEINFO_DIR}" "${TZIF_LIST_FILE}"
         COMMAND_ERROR_IS_FATAL ANY
     )
 endif()
