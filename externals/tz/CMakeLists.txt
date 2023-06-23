@@ -28,7 +28,23 @@ if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
 
     execute_process(
         COMMAND
-            sh "${CMAKE_CURRENT_SOURCE_DIR}/find_tzif.sh" "${TZ_ZONEINFO_DIR}" "${TZIF_LIST_FILE}"
-        COMMAND_ERROR_IS_FATAL ANY
+           ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/list_directory.cmake"
+        WORKING_DIRECTORY
+            "${TZ_ZONEINFO_DIR}"
+        OUTPUT_VARIABLE
+            TZIF_SCAN
     )
+
+    set(TZIF_LIST "")
+    foreach(CANDIDATE ${TZIF_SCAN})
+        if (CANDIDATE STREQUAL "\n")
+            continue()
+        endif()
+        set(TZIF_FILE "${TZ_ZONEINFO_DIR}/${CANDIDATE}")
+        file(READ "${TZIF_FILE}" HEADER LIMIT 4)
+        string(SUBSTRING "${HEADER}" 0 4 HEADER) # Remove trailing newline
+        if (HEADER STREQUAL "TZif")
+            file(APPEND "${TZIF_LIST_FILE}" "${TZIF_FILE}\n")
+        endif()
+    endforeach()
 endif()
