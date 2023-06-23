@@ -24,7 +24,7 @@ execute_process(
 
 string(REPLACE "\n" "" TZ_COMMIT_TIME "${TZ_COMMIT_TIME}")
 
-if (APPLE)
+if (APPLE OR CMAKE_SYSTEM_NAME MATCHES "DragonFly|FreeBSD|NetBSD|OpenBSD")
 	set(VERSION_COMMAND ${GNU_DATE} -r ${TZ_COMMIT_TIME} +%y%m%d) 
 else ()
 	set(VERSION_COMMAND ${GNU_DATE} +%y%m%d --date=@${TZ_COMMIT_TIME})
