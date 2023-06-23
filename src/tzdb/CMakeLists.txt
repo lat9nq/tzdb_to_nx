@@ -46,18 +46,11 @@ add_custom_target(x80e
         ${NX_VERSION_FILE})
 
 set(BINARY_LIST_TXT ${NX_TZDB_DIR}/binaryList.txt)
-# add_custom_command(
-#     OUTPUT
-#         ${BINARY_LIST_TXT}
-#     COMMAND
-#         sh ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.sh ${BINARY_LIST_TXT}
-#     WORKING_DIRECTORY
-#         ${NX_ZONEINFO_DIR})
 add_custom_command(
     OUTPUT
         ${BINARY_LIST_TXT}
     COMMAND
-        ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.cmake ${BINARY_LIST_TXT} ${CMAKE_CURRENT_SOURCE_DIR}/list_directory.cmake
+        ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.cmake ${BINARY_LIST_TXT} ${PROJECT_SOURCE_DIR}/CMakeModules/list_directory.cmake
     WORKING_DIRECTORY
         ${NX_ZONEINFO_DIR})
 

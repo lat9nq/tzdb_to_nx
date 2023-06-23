@@ -28,7 +28,7 @@ if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
 
     execute_process(
         COMMAND
-           ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/list_directory.cmake"
+           ${CMAKE_COMMAND} -P ${PROJECT_SOURCE_DIR}/CMakeModules/list_directory.cmake false ON
         WORKING_DIRECTORY
             "${TZ_ZONEINFO_DIR}"
         OUTPUT_VARIABLE
