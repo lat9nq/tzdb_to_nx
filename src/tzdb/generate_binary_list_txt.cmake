@@ -40,7 +40,7 @@ function(get_files_nx TARG SUB_DIR)
         if (NOT DIR OR DIR STREQUAL "\n")
             continue()
         endif()
-        get_files_nx(${DIR} ${DIR})
+        get_files_nx(${TARG}/${DIR} ${DIR})
     endforeach()
 endfunction()
 
