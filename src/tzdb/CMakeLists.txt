@@ -50,7 +50,7 @@ add_custom_command(
     OUTPUT
         ${BINARY_LIST_TXT}
     COMMAND
-        sh ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.sh ${BINARY_LIST_TXT}
+        ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.cmake ${BINARY_LIST_TXT} ${PROJECT_SOURCE_DIR}/CMakeModules/list_directory.cmake
     WORKING_DIRECTORY
         ${NX_ZONEINFO_DIR})
 
