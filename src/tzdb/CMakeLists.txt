@@ -50,7 +50,7 @@ add_custom_command(
     OUTPUT
         ${BINARY_LIST_TXT}
     COMMAND
-        bash ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.sh ${BINARY_LIST_TXT}
+        sh ${CMAKE_CURRENT_SOURCE_DIR}/generate_binary_list_txt.sh ${BINARY_LIST_TXT}
     WORKING_DIRECTORY
         ${NX_ZONEINFO_DIR})
 

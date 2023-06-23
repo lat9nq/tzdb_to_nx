@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 BINARY_LIST_TXT="$1"
 
 # Fill text file with zone names
@@ -8,7 +8,7 @@ get_files_nx() {
     find $target -maxdepth 1 -type f -not -regex '.*Factory' | sort
     local DIRS=`find $target -maxdepth 1 -type d | sort`
     for i in $DIRS; do
-        if [ "`readlink -e $i`" == "`readlink -e $target`" ]; then
+        if [ "`readlink -e $i`" = "`readlink -e $target`" ]; then
             continue
         fi
         get_files_nx $i
