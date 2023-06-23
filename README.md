@@ -16,3 +16,7 @@ This means the TZif 1 data is not present, so essentially we are left with the s
 Nintendo also does not seem to run the `zic` program on their output when they build the time zone data.
 I have left the relevant build command for that in src/tzdb/CMakeLists.txt commented out, but it isn't used here.
 This lets the project produce data identical to Nintendo's firmware for time zones, however this code does not produce the time zone data on US/Pacific-New or America/East-Saskatchewan (I may have bunged up the actual paths for these as this is 3 day old memory).
+
+The CMake and C++ code in this repository is licensed under the MIT License.
+The source files date.c, newstrftime.3 and strftime.c from submodule eggert/tz use the BSD-3 clause license [[source]](https://github.com/eggert/tz/blob/main/LICENSE).
+The time zone data output from this repository, like those found in archives in the Release setcion, is in the public domain [[source]](https://github.com/eggert/tz/blob/main/LICENSE).
