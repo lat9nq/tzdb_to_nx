@@ -1,5 +1,6 @@
 set(TZ_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tz" CACHE PATH "Time zone source directory")
 set(TZ_DIR "${CMAKE_CURRENT_BINARY_DIR}/tz")
+set(TZ_TMP_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/tmpsrc")
 set(TZ_ZONEINFO_DIR "${TZ_DIR}/usr/share/zoneinfo" CACHE PATH "Time zone info data directory")
 set(TZIF_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/tzif_list.txt" CACHE PATH "List of zone info files")
 
@@ -9,11 +10,15 @@ if ("${GNU_MAKE}" STREQUAL "GNU_MAKE-NOTFOUND")
 endif()
 
 if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
+    # tz's makefile can only build in-tree, so copy the whole source tree to a
+    # separate directory before building.
+    file(COPY ${TZ_SOURCE_DIR}/ DESTINATION ${TZ_TMP_SOURCE_DIR})
+
     execute_process(
         COMMAND
             ${GNU_MAKE} DESTDIR=${TZ_DIR} install
         WORKING_DIRECTORY 
-            ${TZ_SOURCE_DIR}
+            ${TZ_TMP_SOURCE_DIR}
         COMMAND_ERROR_IS_FATAL ANY
     )
 
