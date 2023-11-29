@@ -39,7 +39,7 @@ jobs:
     - name: Package
       run: |
         mkdir -p ${{github.workspace}}/artifacts
-        cp -rv ${{ env.nx_tzdb_dir }} ${{github.workspace}}/artifacts/
+        cp -Rv ${{ env.nx_tzdb_dir }} ${{github.workspace}}/artifacts/
         
     - name: Version
       run: |
@@ -48,5 +48,5 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ env.nx_version }}
+        name: ${{ env.nx_version }}_${{ matrix.platform }}
         path: artifacts/nx
