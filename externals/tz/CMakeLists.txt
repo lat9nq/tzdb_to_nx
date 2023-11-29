@@ -14,13 +14,21 @@ if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
     # separate directory before building.
     file(COPY ${TZ_SOURCE_DIR}/ DESTINATION ${TZ_TMP_SOURCE_DIR})
 
+    if (APPLE)
+        set(TZ_MAKEFLAGS "LDLIBS=-lintl")
+    else()
+        set(TZ_MAKEFLAGS)
+    endif()
+
     execute_process(
         COMMAND
-            ${GNU_MAKE} DESTDIR=${TZ_DIR} install
+            ${GNU_MAKE} DESTDIR=${TZ_DIR} ${TZ_MAKEFLAGS} install
         WORKING_DIRECTORY 
             ${TZ_TMP_SOURCE_DIR}
         COMMAND_ERROR_IS_FATAL ANY
     )
+
+    unset(TZ_MAKEFLAGS)
 
     # Step taken by Arch Linux packaging, but Nintendo apparently skips it
     # execute_process(
