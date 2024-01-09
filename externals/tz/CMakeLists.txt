@@ -15,7 +15,7 @@ if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
     file(COPY ${TZ_SOURCE_DIR}/ DESTINATION ${TZ_TMP_SOURCE_DIR})
 
     if (APPLE)
-        set(TZ_MAKEFLAGS "LDLIBS=-lintl")
+        set(TZ_MAKEFLAGS "LDLIBS=${Intl_LIBRARY}")
     else()
         set(TZ_MAKEFLAGS)
     endif()
