@@ -12,7 +12,11 @@ endif()
 if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
     # tz's makefile can only build in-tree, so copy the whole source tree to a
     # separate directory before building.
-    file(COPY ${TZ_SOURCE_DIR}/ DESTINATION ${TZ_TMP_SOURCE_DIR})
+    execute_process(
+        COMMAND
+            ${GIT_PROGRAM} clone --depth 1 "file://${TZ_SOURCE_DIR}" "${TZ_TMP_SOURCE_DIR}"
+        COMMAND_ERROR_IS_FATAL ANY
+    )
 
     if (APPLE)
         set(TZ_MAKEFLAGS "LDLIBS=${Intl_LIBRARY}")
