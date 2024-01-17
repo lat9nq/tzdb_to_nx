@@ -5,7 +5,7 @@ set(TZ_ZONEINFO_DIR "${TZ_DIR}/usr/share/zoneinfo" CACHE PATH "Time zone info da
 set(TZIF_LIST_FILE "${CMAKE_CURRENT_BINARY_DIR}/tzif_list.txt" CACHE PATH "List of zone info files")
 
 find_program(GNU_MAKE make)
-if ("${GNU_MAKE}" STREQUAL "GNU_MAKE-NOTFOUND")
+if (NOT GNU_MAKE)
     message(FATAL_ERROR "GNU make not found")
 endif()
 

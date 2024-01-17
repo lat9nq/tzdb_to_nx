@@ -1,10 +1,10 @@
 find_program(GIT_PROGRAM git)
-if ("${GIT_PROGRAM}" STREQUAL "GIT_PROGRAM-NOTFOUND")
+if (NOT GIT_PROGRAM)
     message(FATAL_ERROR "git program not found")
 endif()
 
 find_program(GNU_DATE date)
-if ("${GNU_DATE}" STREQUAL "GNU_DATE-NOTFOUND")
+if (NOT GNU_DATE)
     message(FATAL_ERROR "date program not found")
 endif()
 
