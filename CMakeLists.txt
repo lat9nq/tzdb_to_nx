@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(tzdb2nx VERSION 1.0)
 
+option(TZDB2NX_ZONEINFO_DIR "Specify a custom zoneinfo directory containing time zone data you wish to use" "")
+
 set(CMAKE_CXX_STANDARD 20)
 
 if (APPLE)
