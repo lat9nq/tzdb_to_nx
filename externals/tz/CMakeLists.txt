@@ -19,7 +19,7 @@ if (NOT GIT_PROGRAM)
 endif()
 
 if (NOT EXISTS "${TZ_DIR}" OR NOT EXISTS "${TZIF_LIST_FILE}")
-    if (NOT TZDB2NX_ZONEINFO_DIR)
+    if (NOT TZDB2NX_ZONEINFO_DIR) # If a custom zoneinfo directory was specified
         # tz's makefile can only build in-tree, so copy the whole source tree to a
         # separate directory before building.
         execute_process(
