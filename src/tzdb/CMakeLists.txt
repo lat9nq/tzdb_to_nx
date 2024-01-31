@@ -1,10 +1,10 @@
 find_program(GIT_PROGRAM git)
-if ("${GIT_PROGRAM}" STREQUAL "GIT_PROGRAM-NOTFOUND")
+if (NOT GIT_PROGRAM)
     message(FATAL_ERROR "git program not found")
 endif()
 
 find_program(GNU_DATE date)
-if ("${GNU_DATE}" STREQUAL "GNU_DATE-NOTFOUND")
+if (NOT GNU_DATE)
     message(FATAL_ERROR "date program not found")
 endif()
 
@@ -13,29 +13,33 @@ set(NX_ZONEINFO_DIR "${NX_TZDB_DIR}/zoneinfo")
 
 set(TZDB_VERSION_FILE ${TZ_SOURCE_DIR}/NEWS)
 
-execute_process(
-    COMMAND 
-        ${GIT_PROGRAM} log --pretty=%at -n1 NEWS
-    OUTPUT_VARIABLE
-        TZ_COMMIT_TIME
-    WORKING_DIRECTORY
-        ${TZ_SOURCE_DIR}
-    COMMAND_ERROR_IS_FATAL ANY)
+if (NOT "${TZDB2NX_VERSION}" STREQUAL "")
+    set(TZDB_VERSION "${TZDB2NX_VERSION}\n")
+else()
+    execute_process(
+        COMMAND 
+            ${GIT_PROGRAM} log --pretty=%at -n1 NEWS
+        OUTPUT_VARIABLE
+            TZ_COMMIT_TIME
+        WORKING_DIRECTORY
+            ${TZ_SOURCE_DIR}
+        COMMAND_ERROR_IS_FATAL ANY)
 
-string(REPLACE "\n" "" TZ_COMMIT_TIME "${TZ_COMMIT_TIME}")
+    string(REPLACE "\n" "" TZ_COMMIT_TIME "${TZ_COMMIT_TIME}")
 
-if (APPLE OR CMAKE_SYSTEM_NAME MATCHES "DragonFly|FreeBSD|NetBSD|OpenBSD")
-	set(VERSION_COMMAND ${GNU_DATE} -r ${TZ_COMMIT_TIME} +%y%m%d) 
-else ()
-	set(VERSION_COMMAND ${GNU_DATE} +%y%m%d --date=@${TZ_COMMIT_TIME})
-endif ()
+    if (APPLE OR CMAKE_SYSTEM_NAME MATCHES "DragonFly|FreeBSD|NetBSD|OpenBSD")
+        set(VERSION_COMMAND ${GNU_DATE} -r ${TZ_COMMIT_TIME} +%y%m%d)
+    else ()
+        set(VERSION_COMMAND ${GNU_DATE} +%y%m%d --date=@${TZ_COMMIT_TIME})
+    endif ()
 
-execute_process(
-    COMMAND
-		${VERSION_COMMAND}
-    OUTPUT_VARIABLE
-        TZDB_VERSION
-    COMMAND_ERROR_IS_FATAL ANY)
+    execute_process(
+        COMMAND
+            ${VERSION_COMMAND}
+        OUTPUT_VARIABLE
+            TZDB_VERSION
+        COMMAND_ERROR_IS_FATAL ANY)
+endif()
 
 set(NX_VERSION_FILE ${NX_TZDB_DIR}/version.txt)
 file(WRITE ${NX_VERSION_FILE} "${TZDB_VERSION}")
