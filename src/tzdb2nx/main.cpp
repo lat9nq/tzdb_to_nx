@@ -122,6 +122,8 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
+  delete[] buf;
+
   std::vector<u_int8_t> output_buffer;
   tzif_data->ReformatNintendo(output_buffer);
 
